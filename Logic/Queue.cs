@@ -70,8 +70,10 @@ namespace Logic
         /// </param>
         public Queue(IEnumerable<T> array)
         {
-            Count = array?.Count() ?? throw new ArgumentNullException(nameof(array));
-            _array = new T[Count];
+            if(array==null)
+            throw new ArgumentNullException(nameof(array));
+
+            _array = new T[array.Count()];
 
             foreach (var elem in array)
             {
