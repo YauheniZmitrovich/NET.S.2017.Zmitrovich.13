@@ -90,7 +90,7 @@ namespace Logic
         /// Adds an object to the end of the <see cref="Queue{T}"/>.
         /// </summary>
         /// <param name="elem"> 
-        /// The object to add to the <see cref="Queue{T}"/>. The value can be
+        /// The object to add to the <see cref="Queue{T}"/>. The value can't be
         /// null for reference types. 
         /// </param>
         public void Enqueue(T elem)
@@ -164,6 +164,9 @@ namespace Logic
 
         #region IEnumerable, IEnumerable<T> implementations
 
+        /// <summary>
+        /// Iterator.
+        /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
             return new CustomIterator(this);
