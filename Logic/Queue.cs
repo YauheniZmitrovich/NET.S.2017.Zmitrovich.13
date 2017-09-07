@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,10 @@ namespace Logic
         #region Private fields
 
         private T[] _array;
+
+        private int _head;
+
+        private int _tail;
 
         #endregion
 
@@ -38,13 +43,9 @@ namespace Logic
         /// Initializes a new instance of <see cref="Queue{T}"/>
         /// that is empty and has the default initial capacity.
         /// </summary>
-        public Queue()
-        {
-            Count = 0;
-            _array = new T[0];
-        }
+        public Queue() : this(8) { }
 
-        /// <summary>
+        /// <summary>   
         /// Initializes a new instance of <see cref="Queue{T}"/>
         /// that is empty and has the specified initial capacity.
         /// </summary>
@@ -53,9 +54,11 @@ namespace Logic
         /// </param>
         public Queue(int capacity)
         {
-            if (capacity <= 0)
-                throw new ArgumentOutOfRangeException("Capacity can't be less than zero.");
+            if (capacity < 1)
+                throw new ArgumentException("Capacity can't be less than 1.");
 
+            _head = 0;
+            _tail = 0;
             Count = 0;
             _array = new T[capacity];
         }
@@ -70,8 +73,8 @@ namespace Logic
         /// </param>
         public Queue(IEnumerable<T> array)
         {
-            if(array==null)
-            throw new ArgumentNullException(nameof(array));
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
 
             _array = new T[array.Count()];
 
@@ -100,19 +103,15 @@ namespace Logic
 
             if (this.Count == _array.Length)
             {
-                T[] objArray = new T[Count + 1];
+                T[] objArray = new T[Count + 8];
                 Array.Copy(_array, objArray, Count);
 
-                objArray[Count] = elem;
-
                 _array = objArray;
-                Count++;
             }
-            else
-            {
-                _array[Count] = elem;
-                Count++;
-            }
+
+            _array[Count] = elem;
+            _tail++;
+            Count++;
         }
 
         /// <summary>
@@ -128,8 +127,7 @@ namespace Logic
 
             T obj = _array[0];
 
-            for (int i = 0; i < Count-1; i++)
-                _array[i] = _array[i + 1];
+            _head++;
             Count--;
 
             return obj;
@@ -147,7 +145,7 @@ namespace Logic
             if (Count == 0)
                 throw new QueueIsEmptyException();
 
-            return _array[0];
+            return _array[_head];
         }
 
         /// <summary>
@@ -156,6 +154,8 @@ namespace Logic
         public void Clear()
         {
             _array = new T[_array.Length];
+
+            _head = _tail = 0;
             Count = 0;
         }
 
@@ -187,21 +187,19 @@ namespace Logic
             internal CustomIterator(Queue<T> container)
             {
                 this.container = container;
-                currentIndex = -1;
+                currentIndex = container._head - 1;
             }
 
             public bool MoveNext()
             {
-                if (currentIndex != container.Count)
-                {
-                    currentIndex++;
-                }
-                return currentIndex < container.Count;
+                currentIndex = (currentIndex + 1);
+
+                return currentIndex != container._tail;
             }
 
             public void Reset()
             {
-                currentIndex = -1;
+                currentIndex = container._head - 1;
             }
 
             object IEnumerator.Current => Current;
@@ -210,8 +208,8 @@ namespace Logic
             {
                 get
                 {
-                    if (currentIndex == -1 ||
-                        currentIndex == container.Count)
+                    if (currentIndex < 0 ||
+                        currentIndex >= container._tail)
                     {
                         throw new InvalidOperationException();
                     }
