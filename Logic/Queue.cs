@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,10 @@ namespace Logic
         #region Private fields
 
         private T[] _array;
+
+        private int _head;
+
+        private int _tail;
 
         #endregion
 
@@ -38,13 +43,9 @@ namespace Logic
         /// Initializes a new instance of <see cref="Queue{T}"/>
         /// that is empty and has the default initial capacity.
         /// </summary>
-        public Queue()
-        {
-            Count = 0;
-            _array = new T[0];
-        }
+        public Queue() : this(8) { }
 
-        /// <summary>
+        /// <summary>   
         /// Initializes a new instance of <see cref="Queue{T}"/>
         /// that is empty and has the specified initial capacity.
         /// </summary>
@@ -54,8 +55,10 @@ namespace Logic
         public Queue(int capacity)
         {
             if (capacity <= 0)
-                throw new ArgumentOutOfRangeException("Capacity can't be less than zero.");
+                throw new ArgumentException("Capacity can't be less than 1.");
 
+            _head = capacity;
+            _tail = capacity;
             Count = 0;
             _array = new T[capacity];
         }
@@ -70,8 +73,8 @@ namespace Logic
         /// </param>
         public Queue(IEnumerable<T> array)
         {
-            if(array==null)
-            throw new ArgumentNullException(nameof(array));
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
 
             _array = new T[array.Count()];
 
@@ -100,19 +103,20 @@ namespace Logic
 
             if (this.Count == _array.Length)
             {
-                T[] objArray = new T[Count + 1];
+                T[] objArray = new T[Count + 8];
                 Array.Copy(_array, objArray, Count);
 
                 objArray[Count] = elem;
 
                 _array = objArray;
-                Count++;
             }
             else
             {
                 _array[Count] = elem;
-                Count++;
             }
+
+            _tail++;
+            Count++;
         }
 
         /// <summary>
@@ -128,8 +132,7 @@ namespace Logic
 
             T obj = _array[0];
 
-            for (int i = 0; i < Count-1; i++)
-                _array[i] = _array[i + 1];
+            _head++;
             Count--;
 
             return obj;
@@ -156,6 +159,8 @@ namespace Logic
         public void Clear()
         {
             _array = new T[_array.Length];
+
+            _head = _tail = 0;
             Count = 0;
         }
 
