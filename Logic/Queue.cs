@@ -41,7 +41,7 @@ namespace Logic
 
         /// <summary>
         /// Initializes a new instance of <see cref="Queue{T}"/>
-        /// that is empty and has the default initial capacity.
+        /// that is empty and has the default initial capacity(8).
         /// </summary>
         public Queue() : this(8) { }
 
